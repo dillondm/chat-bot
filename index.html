@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Chat</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h2>Real-Time Chat</h2>
+  <ul id="messages"></ul>
+  <form id="chat-form">
+    <input id="message-input" type="text" placeholder="Type a message..." autocomplete="off" required />
+    <button type="submit">Send</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('message-input');
+    const messages = document.getElementById('messages');
+
+    // Listen for chat messages from server
+    socket.on('chat message', (msg) => {
+      const li = document.createElement('li');
+      li.textContent = msg;
+
+      // Example: Assign 'user' class to messages from the user, 'bot' to others
+      if (msg.includes("You")) {  // Customize logic based on the message sender
+        li.classList.add('user');
+      } else {
+        li.classList.add('bot');
+      }
+
+      messages.appendChild(li);
+      messages.scrollTop = messages.scrollHeight;  // Auto-scroll to the bottom
+    });
+
+    // Send message to server on form submission
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const msg = input.value;
+      socket.emit('chat message', msg);
+      input.value = ''; // Clear input field
+    });
+  </script>
+</body>
+</html>
